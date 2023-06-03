@@ -22,7 +22,7 @@ const App: React.FC = () => {
       >
         ℹ️
       </Button>
-      <motion.div
+      <motion.aside
         initial={{
           x: showInfo ? 0 : -350,
         }}
@@ -40,7 +40,7 @@ const App: React.FC = () => {
           ❌
         </Button>
         <ERDInfo erd={erd} />
-      </motion.div>
+      </motion.aside>
     </div>
   );
 };
