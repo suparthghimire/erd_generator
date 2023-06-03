@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Button from "../../Atoms/Button/Button";
 import Modal from "../../Atoms/Modal/Modal";
 import CodeEditor from "../../Molecules/CodeEditor";
@@ -8,7 +8,7 @@ export const Header = () => {
 
   return (
     <>
-      <header className="flex justify-between gap-2 p-10 bg-neutral-900 ">
+      <header className="flex flex-col gap-3 items-start justify-between gap-2 p-10 bg-neutral-900 border-b-2 border-neutral-500 md:flex-row md:items-end">
         <h2 className="text-xl font-bold">ER Diagram Editor</h2>
         <div className="flex gap-2">
           <Button

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import Button from "../Atoms/Button/Button";
-import { DUMMY_JSON, T_ERD, ValidateERD } from "../../model/ERD";
+import { DUMMY_JSON, T_ERD, ParseInput, ValidateERD } from "../../model/ERD";
 import { ZodError } from "zod";
 import { Editor } from "@monaco-editor/react";
 import { useERD } from "../../lib/context/ERDContext";
@@ -13,7 +13,11 @@ const CodeEditor: React.FC<{ afterImport: () => void }> = (props) => {
     try {
       setError(null);
       if (code.length <= 0) throw new Error("Please Provide Valid JSON");
-      const erd: T_ERD = ValidateERD(code);
+      // this is check for sanitez input validity
+      const erd: T_ERD = ParseInput(code);
+      // check for ERD validity
+      ValidateERD(erd);
+
       setErd(erd);
       props.afterImport();
     } catch (e) {
