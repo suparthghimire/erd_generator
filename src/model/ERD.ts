@@ -14,7 +14,18 @@ const position_schema = z
     }),
   })
   .default({ x: 0, y: 0 });
-
+const sizeShema = z.object({
+  width: z.number({
+    errorMap: (_) => ({
+      message: "Provide valid width",
+    }),
+  }),
+  height: z.number({
+    errorMap: (_) => ({
+      message: "Provide valid height",
+    }),
+  }),
+});
 const attribute_schema = z
   .object({
     name: z.string({
@@ -75,6 +86,7 @@ const entity_schema = z
       .default("strong"),
     attributes: z.array(attribute_schema).optional(),
     position: position_schema,
+    size: sizeShema,
   })
   .strict({
     message: "Key Not Recognized",
@@ -133,6 +145,10 @@ export const ERD = z
   });
 
 export type T_ERD = z.infer<typeof ERD>;
+export type T_Entity = z.infer<typeof entity_schema>;
+export type T_Relationship = z.infer<typeof relationship_schema>;
+export type T_Attribute = z.infer<typeof attribute_schema>;
+
 export const ParseInput = (value: string): T_ERD => {
   return ERD.parse(JSON.parse(value));
 };
@@ -267,6 +283,21 @@ export const DUMMY_JSON = `{
                   "type":"simple"
               }
           ]
+      },
+      {
+          "name": "Comment",
+          "type": "strong",
+          "attributes": [
+              {
+                  "name": "id",
+                  "type": "simple",
+                  "is_key": true
+              },
+              {
+                  "name":"body",
+                  "type": "simple"
+              }
+          ]
       }
   ],
   "relationships": [
@@ -283,6 +314,27 @@ export const DUMMY_JSON = `{
                   "cardinality": "1",
                   "participation":"partial"
 
+              }
+          ],
+          "attributes":[
+              {
+                  "name":"created_at",
+                  "type":"simple"
+              }
+          ]
+      },
+       {
+          "name": "has",
+          "participating_entities": [
+              {
+                  "entity": "Comment",
+                  "cardinality": "M",
+                  "participation":"total"
+              },
+              {
+                  "entity": "Post",
+                  "cardinality": "1",
+                  "participation":"partial"
               }
           ],
           "attributes":[

@@ -3,6 +3,7 @@ import Button from "./components/Atoms/Button/Button";
 import ERDInfo from "./components/Molecules/ERDInfo";
 import { useERD } from "./lib/context/ERDContext";
 import { motion } from "framer-motion";
+import Canvas from "./components/Molecules/Canvas";
 const App: React.FC = () => {
   const [showInfo, setShowInfo] = useState<boolean>(true);
   const { erd } = useERD();
@@ -13,7 +14,7 @@ const App: React.FC = () => {
       </div>
     );
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative grid">
       <Button
         className="absolute left-5 top-5 bg-neutral-700 rounded-full p-3"
         onClick={() => {
@@ -41,6 +42,7 @@ const App: React.FC = () => {
         </Button>
         <ERDInfo erd={erd} />
       </motion.aside>
+      <Canvas erd={erd} />
     </div>
   );
 };
