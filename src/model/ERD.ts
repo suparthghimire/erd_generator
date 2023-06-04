@@ -14,18 +14,23 @@ const position_schema = z
     }),
   })
   .default({ x: 0, y: 0 });
-const sizeShema = z.object({
-  width: z.number({
-    errorMap: (_) => ({
-      message: "Provide valid width",
+const sizeShema = z
+  .object({
+    width: z.number({
+      errorMap: (_) => ({
+        message: "Provide valid width",
+      }),
     }),
-  }),
-  height: z.number({
-    errorMap: (_) => ({
-      message: "Provide valid height",
+    height: z.number({
+      errorMap: (_) => ({
+        message: "Provide valid height",
+      }),
     }),
-  }),
-});
+  })
+  .default({
+    width: 0,
+    height: 0,
+  });
 const attribute_schema = z
   .object({
     name: z.string({
@@ -65,6 +70,7 @@ const attribute_schema = z
       })
       .default(false),
     position: position_schema,
+    size: sizeShema,
   })
   .strict({
     message: "Key Not Recognized",
@@ -122,6 +128,7 @@ const relationship_schema = z
       })
     ),
     position: position_schema,
+    size: sizeShema,
   })
   .strict({
     message: "Key Not Recognized",

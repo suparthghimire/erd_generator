@@ -14,6 +14,9 @@ const windowYOffset = 120;
 const BLACK = 0;
 const WHITE = 255;
 
+const drag_node: T_Entity | T_Attribute | T_Relationship | null = null;
+let pan_offset: p5Types.Vector | null = null;
+
 const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
   const [primaryColor, setPrimaryColor] = React.useState(BLACK);
   const [secondaryColor, setSecondaryColor] = React.useState(WHITE);
@@ -27,8 +30,8 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
       setSecondaryColor(WHITE);
     }
   };
-
   const setup = (p5: p5Types, canvasParentRef: Element) => {
+    console.log(props.erd);
     p5.createCanvas(
       window.innerWidth,
       window.innerHeight - windowYOffset
@@ -47,7 +50,6 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     );
     props.erd.entities.forEach((entity, idx) => drawEntity(p5, entity, idx));
   };
-
   const drawEntity = (p5: p5Types, entity: T_Entity, idx: number) => {
     const x = 270 + idx * 250;
     const y = 50;
@@ -107,16 +109,14 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     const x = parentEntity.x + parentEntity.len / 2;
     const y = parentEntity.y + 2 * parentEntity.ht + idx * 50;
 
-    // set x, y position of attribute
-    attribute.position = { x, y };
-
     const name = attribute.name;
-
     const attr_width = name.length;
     const attr_height = 20;
 
     const attr_padded_width = attr_width * 20;
     const attr_padded_height = attr_height + 20;
+    // set x, y position of attribute
+    attribute.position = { x, y };
 
     if (attribute.type === "compound") {
       attribute.compound_attributes?.forEach((compound_attribute, cmp_idx) => {
@@ -165,6 +165,9 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
         p5.text(name, x, y);
       });
     }
+    // set size of attribute
+    attribute.size = { width: attr_padded_width, height: attr_padded_height };
+
     // draw line from attribute to entity
 
     // if attribute is not derived, then draw line to entity
@@ -328,6 +331,14 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
       }
     });
 
+    // set position of relationship
+    relationship.position = { x, y };
+    // set size of relationship
+    relationship.size = {
+      width: rel_diag_len,
+      height: rel_diag_len,
+    };
+
     // draw sqare and rotate it
     p5.fill(primaryColor);
     p5.stroke(secondaryColor);
@@ -352,6 +363,25 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
   const windowResized = (p5: p5Types) => {
     p5.resizeCanvas(window.innerWidth, window.innerHeight - windowYOffset);
   };
+  const mousePressed = (p5: p5Types) => {};
+  const mouseDragged = (p5: p5Types) => {};
+  const mouseReleased = (p5: p5Types) => {};
+
+  const mouseInEntity = (
+    p5: p5Types,
+    pos: { x: number; y: number },
+    size: number
+  ) => {};
+  const mouseInAttr = (
+    p5: p5Types,
+    pos: { x: number; y: number },
+    size: number
+  ) => {};
+  const mouseInRel = (
+    p5: p5Types,
+    pos: { x: number; y: number },
+    size: number
+  ) => {};
   return (
     <div>
       <div className="absolute bottom-5 left-5 text-white">
