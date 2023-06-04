@@ -13,7 +13,7 @@ const position_schema = z
       }),
     }),
   })
-  .default({ x: 0, y: 0 });
+  .default({ x: 100, y: 100 });
 const sizeShema = z
   .object({
     width: z.number({
@@ -146,15 +146,16 @@ export const ERD = z
         message: "Provide atleast one Entity",
       }),
     relationships: z.array(relationship_schema).optional(),
+    attributes: z.array(attribute_schema).optional(),
   })
   .strict({
     message: "Key Not Recognized",
   });
 
-export type T_ERD = z.infer<typeof ERD>;
 export type T_Entity = z.infer<typeof entity_schema>;
 export type T_Relationship = z.infer<typeof relationship_schema>;
 export type T_Attribute = z.infer<typeof attribute_schema>;
+export type T_ERD = z.infer<typeof ERD>;
 
 export const ParseInput = (value: string): T_ERD => {
   return ERD.parse(JSON.parse(value));

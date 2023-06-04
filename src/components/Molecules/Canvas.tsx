@@ -1,20 +1,14 @@
 import React from "react";
 import Sketch from "react-p5";
 import p5Types from "p5";
-import {
-  ERD,
-  T_Attribute,
-  T_ERD,
-  T_Entity,
-  T_Relationship,
-} from "../../model/ERD";
+import { T_ERD, T_Attribute, T_Entity, T_Relationship } from "../../model/ERD";
 import Button from "../Atoms/Button/Button";
 
 const windowYOffset = 120;
 const BLACK = 0;
 const WHITE = 255;
 
-const drag_node: T_Entity | T_Attribute | T_Relationship | null = null;
+let drag_node: T_Entity | T_Attribute | T_Relationship | null = null;
 let pan_offset: p5Types.Vector | null = null;
 
 const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
@@ -51,8 +45,8 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     props.erd.entities.forEach((entity, idx) => drawEntity(p5, entity, idx));
   };
   const drawEntity = (p5: p5Types, entity: T_Entity, idx: number) => {
-    const x = 270 + idx * 250;
-    const y = 50;
+    const x = entity.position.x;
+    const y = entity.position.y;
 
     const name = entity.name;
     const entity_width = name.length;
@@ -106,8 +100,8 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     attribute: T_Attribute,
     idx: number
   ) => {
-    const x = parentEntity.x + parentEntity.len / 2;
-    const y = parentEntity.y + 2 * parentEntity.ht + idx * 50;
+    const x = attribute.position.x;
+    const y = attribute.position.y;
 
     const name = attribute.name;
     const attr_width = name.length;
@@ -169,10 +163,8 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     attribute.size = { width: attr_padded_width, height: attr_padded_height };
 
     // draw line from attribute to entity
-
     // if attribute is not derived, then draw line to entity
     // else draw line to derived from attribute
-
     if (attribute.type !== "derived") {
       p5.stroke(secondaryColor);
       p5.strokeWeight(2);
@@ -251,8 +243,8 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     idx: number
   ) => {
     // draw a diamond shape
-    const x = 400 + idx * 250;
-    const y = 400;
+    const x = relationship.position.x;
+    const y = relationship.position.y;
 
     const name = relationship.name;
 
@@ -363,25 +355,107 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
   const windowResized = (p5: p5Types) => {
     p5.resizeCanvas(window.innerWidth, window.innerHeight - windowYOffset);
   };
-  const mousePressed = (p5: p5Types) => {};
-  const mouseDragged = (p5: p5Types) => {};
-  const mouseReleased = (p5: p5Types) => {};
+  const mousePressed = (p5: p5Types) => {
+    // check for every entity
 
-  const mouseInEntity = (
+    console.log("MOUSE PRESSED");
+    for (let i = props.erd.entities.length - 1; i >= 0; i--) {
+      const entity = props.erd.entities[i];
+      if (mouseInBox(p5, entity.position, entity.size)) {
+        console.log("IN ENTITY", entity.name);
+        drag_node = entity;
+        break;
+      }
+    }
+    // check for attribute
+    if (props.erd.attributes) {
+      for (let i = props.erd.attributes.length - 1; i >= 0; i--) {
+        const attribute = props.erd.attributes[i];
+        if (mouseInEllipse(p5, attribute.position, attribute.size)) {
+          console.log("IN ATTRIBUTE", attribute);
+          console.log("MOUSE", p5.mouseX, p5.mouseY);
+          drag_node = attribute;
+          break;
+        }
+      }
+    }
+    // check for every relationship
+    if (props.erd.relationships) {
+      for (let i = props.erd.relationships.length - 1; i >= 0; i--) {
+        const relationship = props.erd.relationships[i];
+        if (mouseInBox(p5, relationship.position, relationship.size)) {
+          console.log("IN RELATIONSHIP", relationship.name);
+          drag_node = relationship;
+          break;
+        }
+      }
+    }
+    // if nothing is selected, then drag the whole canvas
+    if (!drag_node) pan_offset = p5.createVector(p5.mouseX, p5.mouseY);
+  };
+
+  const mouseInEllipse = (
     p5: p5Types,
     pos: { x: number; y: number },
-    size: number
-  ) => {};
-  const mouseInAttr = (
+    size: { width: number; height: number }
+  ) => {
+    const dx = p5.mouseX - pos.x;
+    const dy = p5.mouseY - pos.y;
+    const rx = size.width / 2;
+    const ry = size.height / 2;
+    return (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1;
+  };
+  const mouseInBox = (
     p5: p5Types,
     pos: { x: number; y: number },
-    size: number
-  ) => {};
-  const mouseInRel = (
-    p5: p5Types,
-    pos: { x: number; y: number },
-    size: number
-  ) => {};
+    size: { width: number; height: number }
+  ) => {
+    return (
+      p5.mouseX > pos.x &&
+      p5.mouseX < pos.x + size.width &&
+      p5.mouseY > pos.y &&
+      p5.mouseY < pos.y + size.height
+    );
+  };
+
+  const mouseReleased = () => {
+    drag_node = null;
+    pan_offset = null;
+  };
+  const mouseDragged = (p5: p5Types) => {
+    if (drag_node) {
+      console.log("DRAGGING", drag_node);
+      drag_node.position.x = p5.mouseX;
+      drag_node.position.y = p5.mouseY;
+    } else if (pan_offset) {
+      const new_pan_offset = p5.createVector(p5.mouseX, p5.mouseY);
+      const diff = p5.createVector(
+        new_pan_offset.x - pan_offset.x,
+        new_pan_offset.y - pan_offset.y
+      );
+      pan_offset = new_pan_offset;
+
+      // for all entities, attributes, and relationships, move them by diff
+      props.erd.entities.forEach((entity) => {
+        entity.position.x += diff.x;
+        entity.position.y += diff.y;
+      });
+
+      if (props.erd.attributes) {
+        props.erd.attributes.forEach((attribute) => {
+          attribute.position.x += diff.x;
+          attribute.position.y += diff.y;
+        });
+      }
+
+      if (props.erd.relationships) {
+        props.erd.relationships.forEach((relationship) => {
+          relationship.position.x += diff.x;
+          relationship.position.y += diff.y;
+        });
+      }
+    }
+  };
   return (
     <div>
       <div className="absolute bottom-5 left-5 text-white">
@@ -389,7 +463,14 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
           Switch Theme to {primaryColor === BLACK ? "Light" : "Dark"}
         </Button>
       </div>
-      <Sketch setup={setup} draw={draw} windowResized={windowResized} />
+      <Sketch
+        setup={setup}
+        draw={draw}
+        windowResized={windowResized}
+        mousePressed={mousePressed}
+        mouseReleased={mouseReleased}
+        mouseDragged={mouseDragged}
+      />
     </div>
   );
 };

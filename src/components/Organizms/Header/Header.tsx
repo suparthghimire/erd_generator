@@ -18,9 +18,9 @@ export const Header = () => {
           >
             Import ER From JSON
           </Button>
-          <Button className="p-2 rounded" variant="SECONDARY">
+          {/* <Button className="p-2 rounded" variant="SECONDARY">
             Use GUI
-          </Button>
+          </Button> */}
         </div>
       </header>
       <Modal
