@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
 import Button from "../Atoms/Button/Button";
-import { DUMMY_JSON, T_ERD, ParseInput, ValidateERD } from "../../model/ERD";
+import { T_ERD, ParseInput, ValidateERD } from "../../model/ERD";
 import { ZodError } from "zod";
 import { Editor } from "@monaco-editor/react";
 import { useERD } from "../../lib/context/ERDContext";
 
 const CodeEditor: React.FC<{ afterImport: () => void }> = (props) => {
-  // const [code, setCode] = useState<string>(DUMMY_JSON);
   const [error, setError] = useState<(string | number)[] | null>(null);
   const { setErd, erdJSON, setERDJSON } = useERD();
   function handleParse() {
