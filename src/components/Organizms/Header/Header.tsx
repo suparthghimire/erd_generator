@@ -2,9 +2,11 @@ import { useState } from "react";
 import Button from "../../Atoms/Button/Button";
 import Modal from "../../Atoms/Modal/Modal";
 import CodeEditor from "../../Molecules/CodeEditor";
+// import JSONEditor from "../../Molecules/JSONEditor";
 
 export const Header = () => {
   const [openCodeEditor, setOpenCodeEditor] = useState<boolean>(false);
+  // const [openGUIEditor, setOpenGUIEditor] = useState<boolean>(false);
 
   return (
     <>
@@ -18,7 +20,11 @@ export const Header = () => {
           >
             Import ER From JSON
           </Button>
-          {/* <Button className="p-2 rounded" variant="SECONDARY">
+          {/* <Button
+            className="p-2 rounded"
+            variant="SECONDARY"
+            onClick={() => setOpenGUIEditor(true)}
+          >
             Use GUI
           </Button> */}
         </div>
@@ -30,6 +36,13 @@ export const Header = () => {
       >
         <CodeEditor afterImport={() => setOpenCodeEditor(false)} />
       </Modal>
+      {/* <Modal
+        title="Import ER From JSON"
+        onClose={() => setOpenGUIEditor(false)}
+        opened={openGUIEditor}
+      >
+        <JSONEditor />
+      </Modal> */}
     </>
   );
 };

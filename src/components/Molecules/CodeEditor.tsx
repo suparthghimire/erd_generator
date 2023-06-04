@@ -6,15 +6,15 @@ import { Editor } from "@monaco-editor/react";
 import { useERD } from "../../lib/context/ERDContext";
 
 const CodeEditor: React.FC<{ afterImport: () => void }> = (props) => {
-  const [code, setCode] = useState<string>(DUMMY_JSON);
+  // const [code, setCode] = useState<string>(DUMMY_JSON);
   const [error, setError] = useState<(string | number)[] | null>(null);
-  const { setErd } = useERD();
+  const { setErd, erdJSON, setERDJSON } = useERD();
   function handleParse() {
     try {
       setError(null);
-      if (code.length <= 0) throw new Error("Please Provide Valid JSON");
+      if (erdJSON.length <= 0) throw new Error("Please Provide Valid JSON");
       // this is check for sanitez input validity
-      const erd: T_ERD = ParseInput(code);
+      const erd: T_ERD = ParseInput(erdJSON);
       // check for ERD validity
       ValidateERD(erd);
 
@@ -44,10 +44,10 @@ const CodeEditor: React.FC<{ afterImport: () => void }> = (props) => {
         <div>{error && <DisplayError error={error} />}</div>
         <Editor
           defaultLanguage="json"
-          defaultValue={code}
+          defaultValue={erdJSON}
           onChange={(v) => {
-            if (v) setCode(v);
-            else setCode("");
+            if (v) setERDJSON(v);
+            else setERDJSON("");
           }}
           theme="vs-dark"
           className={`${

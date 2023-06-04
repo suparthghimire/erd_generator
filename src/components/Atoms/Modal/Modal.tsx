@@ -7,7 +7,7 @@ type Props = {
 } & PropsWithChildren;
 
 const Modal: React.FC<Props> = (props) => {
-  if (!props.opened) return null;
+  if (!props.opened) return <></>;
 
   return (
     <div className="absolute w-screen min-h-screen h-full bg-neutral-800 rounded top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] p-3 grid grid-rows-[max-content_1fr] gap-5 z-[99999]">

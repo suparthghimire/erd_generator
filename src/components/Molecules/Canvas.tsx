@@ -184,7 +184,12 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
         if (my_derived_from) {
           p5.stroke(secondaryColor);
           p5.strokeWeight(2);
-          p5.line(x, y, my_derived_from.position.x, my_derived_from.position.y);
+          p5.line(
+            x,
+            y,
+            my_derived_from.position.x,
+            my_derived_from.position.y - my_derived_from.size.height / 2
+          );
         }
       }
     }
@@ -214,9 +219,9 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
       p5.strokeWeight(2);
       p5.line(
         x - attr_padded_width / 4,
-        y + 10,
-        x + attr_padded_height / 4,
-        y + 10
+        y + 12,
+        x + attr_padded_width / 4,
+        y + 12
       );
       p5.strokeWeight(1);
     }
