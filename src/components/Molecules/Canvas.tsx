@@ -39,12 +39,12 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
   const draw = (p5: p5Types) => {
     p5.background(primaryColor);
 
-    props.erd.relationships?.forEach((relationship, idx) =>
-      drawRelationship(p5, relationship, idx)
+    props.erd.relationships?.forEach((relationship) =>
+      drawRelationship(p5, relationship)
     );
-    props.erd.entities.forEach((entity, idx) => drawEntity(p5, entity, idx));
+    props.erd.entities.forEach((entity) => drawEntity(p5, entity));
   };
-  const drawEntity = (p5: p5Types, entity: T_Entity, idx: number) => {
+  const drawEntity = (p5: p5Types, entity: T_Entity) => {
     const x = entity.position.x;
     const y = entity.position.y;
 
@@ -61,7 +61,7 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     entity.size = { width: entity_padded_width, height: entity_padded_height };
 
     // draw attributes and lines from attribute to entity
-    entity.attributes?.forEach((attribute, idx) =>
+    entity.attributes?.forEach((attribute) =>
       drawAttribute(
         p5,
         {
@@ -71,8 +71,7 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
           len: entity_padded_width,
           ht: entity_padded_height,
         },
-        attribute,
-        idx
+        attribute
       )
     );
 
@@ -97,8 +96,7 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
       len: number;
       ht: number;
     },
-    attribute: T_Attribute,
-    idx: number
+    attribute: T_Attribute
   ) => {
     const x = attribute.position.x;
     const y = attribute.position.y;
@@ -237,11 +235,7 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
 
     // if attribute is composite, for each composite attribute, draw a simple arc
   };
-  const drawRelationship = (
-    p5: p5Types,
-    relationship: T_Relationship,
-    idx: number
-  ) => {
+  const drawRelationship = (p5: p5Types, relationship: T_Relationship) => {
     // draw a diamond shape
     const x = relationship.position.x;
     const y = relationship.position.y;
@@ -261,7 +255,7 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     p5.strokeWeight(2);
 
     // draw any attributes
-    relationship.attributes?.forEach((attribute, idx) =>
+    relationship.attributes?.forEach((attribute) =>
       drawAttribute(
         p5,
         {
@@ -271,8 +265,7 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
           y,
           ht: rel_diag_len,
         },
-        attribute,
-        idx
+        attribute
       )
     );
 
