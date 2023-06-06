@@ -1,18 +1,28 @@
 import React from "react";
 import Sketch from "react-p5";
 import p5Types from "p5";
-import { T_ERD, T_Attribute, T_Entity, T_Relationship } from "../../model/ERD";
+import {
+  AES_KEY,
+  T_ERD,
+  T_Attribute,
+  T_Entity,
+  T_Relationship,
+  ERD_PROFILE_STORAGE_KEY,
+  T_STORAGE_ERD_PROFILE,
+} from "../../model/ERD";
 import Button from "../Atoms/Button/Button";
-
+import { useERD } from "../../lib/context/ERDContext";
+import CryptoJS from "crypto-js";
+import { useLocalStorage } from "@mantine/hooks";
 const windowYOffset = 120;
 const BLACK = 0;
 const WHITE = 255;
-
 let drag_node: T_Entity | T_Attribute | T_Relationship | null = null;
 let pan_offset: p5Types.Vector | null = null;
 
+type T_COLOR = typeof BLACK | typeof WHITE;
 const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
-  const [primaryColor, setPrimaryColor] = React.useState(BLACK);
+  const [primaryColor, setPrimaryColor] = React.useState<T_COLOR>(BLACK);
   const [secondaryColor, setSecondaryColor] = React.useState(WHITE);
 
   const switchTheme = () => {
@@ -422,7 +432,6 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
   };
   const mouseDragged = (p5: p5Types) => {
     if (drag_node) {
-      console.log("DRAGGING", drag_node);
       drag_node.position.x = p5.mouseX;
       drag_node.position.y = p5.mouseY;
     } else if (pan_offset) {
@@ -455,11 +464,9 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     }
   };
   return (
-    <div>
-      <div className="absolute bottom-5 left-5 text-white">
-        <Button className="p-2 rounded" onClick={() => switchTheme()}>
-          Switch Theme to {primaryColor === BLACK ? "Light" : "Dark"}
-        </Button>
+    <>
+      <div className="absolute bottom-5 left-5 text-white flex gap-3">
+        <Buttons switchTheme={switchTheme} primaryColor={primaryColor} />
       </div>
       <Sketch
         setup={setup}
@@ -469,8 +476,46 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
         mouseReleased={mouseReleased}
         mouseDragged={mouseDragged}
       />
-    </div>
+    </>
   );
 };
+
+function Buttons({
+  switchTheme,
+  primaryColor,
+}: {
+  switchTheme: () => void;
+  primaryColor: T_COLOR;
+}) {
+  const { erdJSON } = useERD();
+  const [_, setProfiles] = useLocalStorage<T_STORAGE_ERD_PROFILE>({
+    key: ERD_PROFILE_STORAGE_KEY,
+    defaultValue: [],
+  });
+  return (
+    <>
+      <Button className="p-2 rounded" onClick={() => switchTheme()}>
+        Switch Theme to {primaryColor === BLACK ? "Light" : "Dark"}
+      </Button>
+      <Button
+        type="submit"
+        variant="SECONDARY"
+        className="p-2 rounded"
+        onClick={() => {
+          const profileName = prompt("Enter Profile Name");
+          if (profileName) {
+            const hash = CryptoJS.AES.encrypt(erdJSON, AES_KEY).toString();
+            setProfiles((prevProfiles) => [
+              ...prevProfiles,
+              { name: profileName, profileHash: hash },
+            ]);
+          }
+        }}
+      >
+        Save ERD Profile
+      </Button>
+    </>
+  );
+}
 
 export default Canvas;

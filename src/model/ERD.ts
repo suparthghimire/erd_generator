@@ -354,3 +354,10 @@ export const DUMMY_JSON = `{
       }
   ]
 }`;
+
+export const AES_KEY = "aes-256-erd";
+export const ERD_PROFILE_STORAGE_KEY = "erd-profile";
+export type T_STORAGE_ERD_PROFILE = {
+  name: string;
+  profileHash: string;
+}[];

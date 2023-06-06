@@ -1,13 +1,14 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Button from "../Atoms/Button/Button";
 import { T_ERD, ParseInput, ValidateERD } from "../../model/ERD";
 import { ZodError } from "zod";
 import { Editor } from "@monaco-editor/react";
 import { useERD } from "../../lib/context/ERDContext";
-
+import DisplayError from "./DisplayError";
 const CodeEditor: React.FC<{ afterImport: () => void }> = (props) => {
   const [error, setError] = useState<(string | number)[] | null>(null);
   const { setErd, erdJSON, setERDJSON } = useERD();
+
   function handleParse() {
     try {
       setError(null);
@@ -55,43 +56,13 @@ const CodeEditor: React.FC<{ afterImport: () => void }> = (props) => {
           }`}
         />
       </div>
-      <Button type="submit" className="py-2 px-4 rounded w-fit mt-2">
-        Import
-      </Button>
+      <div className="flex gap-3">
+        <Button type="submit" className="py-2 px-4 rounded w-fit mt-2">
+          Import
+        </Button>
+      </div>
     </form>
   );
 };
-
-function DisplayError(props: { error: (string | number)[] }) {
-  const msg = useMemo(() => props.error.at(0), [props.error.at(0)]);
-  const entity = useMemo(() => props.error.at(1), [props.error.at(1)]);
-  const idx = useMemo(() => props.error.at(2), [props.error.at(2)]);
-  const attribute = useMemo(() => props.error.at(3), [props.error.at(3)]);
-  const subIdx = useMemo(() => props.error.at(4), [props.error.at(4)]);
-  const subAttribute = useMemo(() => props.error.at(5), [props.error.at(5)]);
-
-  return (
-    <div className="text-red-500 text-md">
-      <span>Error {msg && ` - ${msg}`}</span>
-
-      {entity && (
-        <>
-          <span className="font-bold italic"> ---{">"} ER.</span>
-          <span className="font-bold italic">{entity}</span>
-        </>
-      )}
-      {idx !== undefined && <span className="font-bold italic">[{idx}]</span>}
-      {attribute !== undefined && (
-        <span className="font-bold italic">.{attribute}</span>
-      )}
-      {subIdx !== undefined && (
-        <span className="font-bold italic">[{subIdx}]</span>
-      )}
-      {subAttribute !== undefined && (
-        <span className="font-bold italic">.{subAttribute}</span>
-      )}
-    </div>
-  );
-}
 
 export default CodeEditor;
