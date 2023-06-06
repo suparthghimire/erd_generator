@@ -1,4 +1,5 @@
 import { ZodError, z } from "zod";
+import CryptoJS from "crypto-js";
 
 const position_schema = z
   .object({
@@ -136,6 +137,9 @@ const relationship_schema = z
 
 export const ERD = z
   .object({
+    id: z
+      .string()
+      .default(CryptoJS.SHA256(new Date().getTime().toString()).toString()),
     entities: z
       .array(entity_schema, {
         errorMap: (_) => ({
@@ -359,5 +363,6 @@ export const AES_KEY = "aes-256-erd";
 export const ERD_PROFILE_STORAGE_KEY = "erd-profile";
 export type T_STORAGE_ERD_PROFILE = {
   name: string;
+  id: string;
   profileHash: string;
 }[];

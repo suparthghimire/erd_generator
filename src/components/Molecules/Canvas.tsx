@@ -14,6 +14,7 @@ import Button from "../Atoms/Button/Button";
 import { useERD } from "../../lib/context/ERDContext";
 import CryptoJS from "crypto-js";
 import { useLocalStorage } from "@mantine/hooks";
+
 const windowYOffset = 120;
 const BLACK = 0;
 const WHITE = 255;
@@ -35,7 +36,6 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
     }
   };
   const setup = (p5: p5Types, canvasParentRef: Element) => {
-    console.log(props.erd);
     p5.createCanvas(
       window.innerWidth,
       window.innerHeight - windowYOffset
@@ -366,11 +366,9 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
   const mousePressed = (p5: p5Types) => {
     // check for every entity
 
-    console.log("MOUSE PRESSED");
     for (let i = props.erd.entities.length - 1; i >= 0; i--) {
       const entity = props.erd.entities[i];
       if (mouseInBox(p5, entity.position, entity.size)) {
-        console.log("IN ENTITY", entity.name);
         drag_node = entity;
         break;
       }
@@ -380,8 +378,6 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
       for (let i = props.erd.attributes.length - 1; i >= 0; i--) {
         const attribute = props.erd.attributes[i];
         if (mouseInEllipse(p5, attribute.position, attribute.size)) {
-          console.log("IN ATTRIBUTE", attribute);
-          console.log("MOUSE", p5.mouseX, p5.mouseY);
           drag_node = attribute;
           break;
         }
@@ -392,7 +388,6 @@ const Canvas: React.FC<{ erd: T_ERD }> = (props) => {
       for (let i = props.erd.relationships.length - 1; i >= 0; i--) {
         const relationship = props.erd.relationships[i];
         if (mouseInBox(p5, relationship.position, relationship.size)) {
-          console.log("IN RELATIONSHIP", relationship.name);
           drag_node = relationship;
           break;
         }
@@ -487,8 +482,8 @@ function Buttons({
   switchTheme: () => void;
   primaryColor: T_COLOR;
 }) {
-  const { erdJSON } = useERD();
-  const [_, setProfiles] = useLocalStorage<T_STORAGE_ERD_PROFILE>({
+  const { erd } = useERD();
+  const [profiles, setProfiles] = useLocalStorage<T_STORAGE_ERD_PROFILE>({
     key: ERD_PROFILE_STORAGE_KEY,
     defaultValue: [],
   });
@@ -502,13 +497,33 @@ function Buttons({
         variant="SECONDARY"
         className="p-2 rounded"
         onClick={() => {
-          const profileName = prompt("Enter Profile Name");
-          if (profileName) {
-            const hash = CryptoJS.AES.encrypt(erdJSON, AES_KEY).toString();
-            setProfiles((prevProfiles) => [
-              ...prevProfiles,
-              { name: profileName, profileHash: hash },
-            ]);
+          try {
+            if (!erd) throw "ERD NOT FOUND";
+            const profile = profiles.findIndex(
+              (profile) => profile.id === erd.id
+            );
+            const json = JSON.stringify(erd);
+            const hash = CryptoJS.AES.encrypt(json, AES_KEY).toString();
+            if (profile !== -1) {
+              const newProfile: T_STORAGE_ERD_PROFILE =
+                structuredClone(profiles);
+              newProfile[profile] = {
+                id: erd.id,
+                name: profiles[profile].name,
+                profileHash: hash,
+              };
+              setProfiles(newProfile);
+            } else {
+              const profileName = prompt("Enter Profile Name");
+              if (profileName) {
+                setProfiles((prevProfiles) => [
+                  ...prevProfiles,
+                  { id: erd.id, name: profileName, profileHash: hash },
+                ]);
+              }
+            }
+          } catch (error) {
+            console.error(error);
           }
         }}
       >
